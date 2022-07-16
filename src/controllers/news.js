@@ -1,5 +1,7 @@
 const { validationResult } = require("express-validator");
 const NewsCollection = require("../models/news");
+const path = require("path");
+const fs = require("fs");
 
 // POST
 exports.createNews = (req, res, next) => {
@@ -106,6 +108,8 @@ exports.updateNews = (req, res, next) => {
             throw error;
          }
 
+         removeImage(post.image);
+
          post.title = title;
          post.image = img;
          post.author = author;
@@ -120,4 +124,35 @@ exports.updateNews = (req, res, next) => {
          });
       })
       .catch((err) => next(err));
+};
+
+// DELETE
+exports.deleteNews = (req, res, next) => {
+   const newsId = req.params.id;
+
+   NewsCollection.findById(newsId)
+      .then((post) => {
+         if (!post) {
+            const error = new Error("ID News not found");
+            error.errorStatus(404);
+            throw error;
+         }
+
+         removeImage(post.image);
+
+         return NewsCollection.findByIdAndRemove(newsId);
+      })
+      .then((result) => {
+         res.status(200).json({
+            message: "Delete news has been success !",
+            data: result,
+         });
+      })
+      .catch((err) => next(err));
+};
+
+const removeImage = (pathFile) => {
+   pathFile = path.join(__dirname, "../..", pathFile);
+
+   fs.unlink(pathFile, (err) => console.log(err));
 };

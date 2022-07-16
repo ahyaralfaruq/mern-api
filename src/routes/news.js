@@ -38,4 +38,7 @@ router.put(
    newsController.updateNews
 );
 
+// DELETE => METHOD DELETE
+router.delete("/post/:id", newsController.deleteNews);
+
 module.exports = router;
