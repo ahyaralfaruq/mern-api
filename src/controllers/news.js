@@ -55,3 +55,21 @@ exports.getAllNews = (req, res, next) => {
       })
       .catch((err) => next(err));
 };
+
+exports.getNewsById = (req, res, next) => {
+   const newsId = req.params.id;
+   NewsCollection.findById(newsId)
+      .then((result) => {
+         if (!result) {
+            const error = new Error("ID Not Found");
+            error.errorStatus(404);
+            throw error;
+         }
+
+         res.status(200).json({
+            message: "Fetch data news success !",
+            data: result,
+         });
+      })
+      .catch((err) => next(err));
+};

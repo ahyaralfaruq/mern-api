@@ -22,5 +22,6 @@ router.post(
 
 // READ => METHOD GET
 router.get("/get", newsController.getAllNews);
+router.get("/get/:id", newsController.getNewsById);
 
 module.exports = router;
