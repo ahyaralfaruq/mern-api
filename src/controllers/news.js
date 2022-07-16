@@ -1,57 +1,57 @@
+const { validationResult } = require("express-validator");
+const NewsCollection = require("../models/news");
+
 // POST
 exports.createNews = (req, res, next) => {
-   const img = req.body.image;
+   const errors = validationResult(req);
+
+   if (!errors.isEmpty()) {
+      const err = new Error("invalid value");
+      err.errorStatus = 400;
+      err.desc = errors.array();
+      throw err;
+   }
+
+   if (!req.file) {
+      const err = new Error("images must be uploaded");
+      err.errorStatus = 422;
+      throw err;
+   }
+
+   const img = req.file.path;
    const title = req.body.title;
    const author = req.body.author;
-   const date = req.body.date;
    const desc = req.body.desc;
 
-   const result = {
-      message: "Create news success !",
-      data: {
+   const postingDataNews = new NewsCollection({
+      title: title,
+      image: img,
+      desc: desc,
+      author: {
          uid: 1,
-         // image: "image.jpg",
-         title: "Lorem ipsum",
-         author: "crimson chin",
-         date: "09 Maret 2019",
-         desc: "Most modern React projects manage their dependencies using a package manager like npm or Yarn. To add React Router to an existing project, the first thing you should do is install the necessary",
+         name: "Muhammad Ahyar",
       },
-   };
+   });
 
-   res.status(201).json(result);
-   next();
+   postingDataNews
+      .save()
+      .then((result) => {
+         res.status(201).json({
+            message: "Create news success !",
+            data: result,
+         });
+      })
+      .catch((err) => console.error(err));
 };
 
 // GET
 exports.getAllNews = (req, res, next) => {
-   res.json({
-      message: "Get all news success !",
-      data: [
-         {
-            uid: 1,
-            // image: "image.jpg",
-            title: "Lorem ipsum",
-            author: "crimson chin",
-            date: "09 Maret 2019",
-            desc: "Most modern React projects manage their dependencies using a package manager like npm or Yarn. To add React Router to an existing project, the first thing you should do is install the necessary",
-         },
-         {
-            uid: 2,
-            // image: "image.jpg",
-            title: "Lorem ipsum 2",
-            author: "crimson chin",
-            date: "29 Maret 2019",
-            desc: "Most modern React projects manage their dependencies using a package manager like npm or Yarn. To add React Router to an existing project, the first thing you should do is install the necessary",
-         },
-         {
-            uid: 3,
-            // image: "image.jpg",
-            title: "Lorem ipsum 3",
-            author: "crimson chin",
-            date: "19 April 2019",
-            desc: "Most modern React projects manage their dependencies using a package manager like npm or Yarn. To add React Router to an existing project, the first thing you should do is install the necessary",
-         },
-      ],
-   });
-   next();
+   NewsCollection.find()
+      .then((result) => {
+         res.status(200).json({
+            message: "Get all news success !",
+            data: result,
+         });
+      })
+      .catch((err) => next(err));
 };
