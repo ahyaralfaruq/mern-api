@@ -73,3 +73,51 @@ exports.getNewsById = (req, res, next) => {
       })
       .catch((err) => next(err));
 };
+
+// UPDATE
+exports.updateNews = (req, res, next) => {
+   const errors = validationResult(req);
+
+   if (!errors.isEmpty()) {
+      const err = new Error("invalid value");
+      err.errorStatus = 400;
+      err.desc = errors.array();
+      throw err;
+   }
+
+   if (!req.file) {
+      const err = new Error("images must be uploaded");
+      err.errorStatus = 422;
+      throw err;
+   }
+
+   const img = req.file.path;
+   const title = req.body.title;
+   const author = req.body.author;
+   const desc = req.body.desc;
+
+   const newsId = req.params.id;
+
+   NewsCollection.findById(newsId)
+      .then((post) => {
+         if (!post) {
+            const error = new Error("ID News not found");
+            error.errorStatus(404);
+            throw error;
+         }
+
+         post.title = title;
+         post.image = img;
+         post.author = author;
+         post.desc = desc;
+
+         return post.save();
+      })
+      .then((result) => {
+         res.status(200).json({
+            message: "update news has been success !",
+            data: result,
+         });
+      })
+      .catch((err) => next(err));
+};

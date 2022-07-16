@@ -24,4 +24,18 @@ router.post(
 router.get("/get", newsController.getAllNews);
 router.get("/get/:id", newsController.getNewsById);
 
+// UPDATE => METHOD PUT
+router.put(
+   "/post/:id",
+   [
+      body("title")
+         .isLength({ min: 5 })
+         .withMessage("Title at least 5 character"),
+      body("desc")
+         .isLength({ min: 10 })
+         .withMessage("Title at least 10 character"),
+   ],
+   newsController.updateNews
+);
+
 module.exports = router;
