@@ -48,11 +48,25 @@ exports.createNews = (req, res, next) => {
 
 // GET
 exports.getAllNews = (req, res, next) => {
+   const currentPage = req.query.page || 1;
+   const perPage = req.query.perpage || 10;
+   let totalItems;
+
    NewsCollection.find()
+      .countDocuments()
+      .then((count) => {
+         totalItems = count;
+         return NewsCollection.find()
+            .skip((parseInt(currentPage) - 1) * parseInt(perPage))
+            .limit(parseInt(perPage));
+      })
       .then((result) => {
          res.status(200).json({
             message: "Get all news success !",
             data: result,
+            current_page: parseInt(currentPage),
+            per_page: parseInt(perPage),
+            total_items: parseInt(totalItems),
          });
       })
       .catch((err) => next(err));
