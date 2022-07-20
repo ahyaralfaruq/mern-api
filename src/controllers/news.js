@@ -109,7 +109,10 @@ exports.updateNews = (req, res, next) => {
 
    const img = req.file.path;
    const title = req.body.title;
-   const author = req.body.author;
+   const author = {
+      uid: 1,
+      name: "Muhammad Ahyar",
+   };
    const desc = req.body.desc;
 
    const newsId = req.params.id;
